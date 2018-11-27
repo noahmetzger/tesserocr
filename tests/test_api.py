@@ -177,6 +177,27 @@ class TestTessBaseApi(unittest.TestCase):
         mapped_confidences = self._api.MapWordConfidences()
         self.assertEqual([v[0] for v in mapped_confidences], words)
         self.assertEqual([v[1] for v in mapped_confidences], confidences)
+        
+    def test_LSTM_choices(self):
+        if _TESSERACT_VERSION >= 0x4000000:
+            """Test GetBestLSTMSymbolChoices."""
+            self._api.SetVariable("lstm_choice_mode", "2")
+            self._api.SetImageFile(self._image_file)
+            self._api.Recognize()
+            LSTM_choices = self._api.GetBestLSTMSymbolChoices()
+            words = self._api.AllWords()
+            self.assertEqual(len(words), len(LSTM_choices))
+            
+            for choice, word in zip(LSTM_choices, words):
+                chosen_word = ""
+                for timestep in choice:
+                    for alternative in timestep:
+                        self.assertGreaterEqual(alternative[1], 0.0)
+                        self.assertLessEqual(alternative[1], 2.0)
+                    chosen_symbol = timestep[0][0]
+                    if chosen_symbol != " ":
+                        chosen_word += chosen_symbol
+                self.assertEqual(chosen_word, word)
 
     @unittest.skipIf(_TESSERACT_VERSION < 0x4000000, "tesseract < 4")
     def test_LSTM_choices(self):
