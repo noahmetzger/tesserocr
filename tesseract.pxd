@@ -193,6 +193,8 @@ cdef extern from "tesseract/ltrresultiterator.h" namespace "tesseract" nogil:
         bool Next()
         cchar_t *GetUTF8Text() const
         float Confidence() const
+        IF TESSERACT_VERSION >= 0x4010000:
+            vector[vector[pair[cchar_tp, float]]] *Timesteps() const
 
 cdef extern from "tesseract/resultiterator.h" namespace "tesseract" nogil:
     IF TESSERACT_VERSION >= 0x4000000:

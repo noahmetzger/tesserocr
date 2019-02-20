@@ -1078,6 +1078,17 @@ cdef class PyChoiceIterator:
         """
         return self._citer.Confidence()
 
+    IF TESSERACT_VERSION >= 0x4010000:
+        def Timesteps(self):
+            LSTMSymbolChoices = []
+            output = self._citer.Timesteps()[0]
+            for tstep in output:
+                timestep = []
+                for confpair in tstep:
+                    timestep.append((confpair.first, confpair.second))
+                LSTMSymbolChoices.append(timestep)
+            return LSTMSymbolChoices
+
 
 def iterate_choices(citerator):
     """Helper generator function to iterate :class:`PyChoiceIterator`."""
